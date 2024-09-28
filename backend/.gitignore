@@ -2,5 +2,6 @@ Include/
 Lib/
 Scripts/
 app/stories/*
+!app/stories/test1.story
 db/db.json
 
