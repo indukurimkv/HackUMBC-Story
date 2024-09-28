@@ -22,19 +22,31 @@ function StoryCard(){
     
 }
 
-export default function storyGrid(){
-    
+async function getNumStories(){
+    const numStories = await fetch("http://localhost:8000/story/get_num", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }).then(response => response.json()).then(responseData => (responseData))
 
-    return (
-        <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={{ xs: 2, md: 10 }} columns={{ xs: 4, sm: 8, md: 12 }} >
-                {Array.from(Array(6)).map((_, index) => (
-                <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
+    return numStories.num_stories;
+
+}
+
+export default async function storyGrid(){
+    console.log(await getNumStories())
+    
+    // return (
+        // <Box sx={{ flexGrow: 1 }}>
+        //     <Grid container spacing={{ xs: 2, md: 10 }} columns={{ xs: 4, sm: 8, md: 12 }} >
+        //         {Array.from(Array(6)).map((_, index) => (
+        //         <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
                     
-                    <StoryCard />
-                </Grid>
-                ))}
-            </Grid>
-        </Box>
-    );
+        //             <StoryCard />
+        //         </Grid>
+        //         ))}
+        //     </Grid>
+        // </Box>
+    // );
+
+    const renderedOutput = Array 
 }
