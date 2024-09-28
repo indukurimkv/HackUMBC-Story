@@ -48,11 +48,14 @@ def create_story(story: Story):
     if story.id == "":
         story.id = uuid4().hex
     
+    if story_IDs.contains(where("ID") == story.id):
+        return {"status": "already_exists"}
+
     story_IDs.insert({"ID": story.id})
     story_metadata.update(increment("count"), doc_ids=[1])
 
     with open(getRelPath(__file__, f"stories/{story.id}.story"), "w") as file:
-        file.write(story.body)
+        file.write(story.content)
     return {"status": "ok"}
 
 
