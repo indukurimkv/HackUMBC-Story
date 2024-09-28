@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { experimentalStyled as styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -32,8 +32,14 @@ async function getNumStories(){
 
 }
 
-export default async function storyGrid(){
-    console.log(await getNumStories())
+export default function StoryGrid(){
+    const [numStories, setNumStories] = useState(0)
+    useEffect( () => {
+        async function updateNumStories(){
+            setNumStories(await getNumStories())
+    }
+    updateNumStories();
+}, [])
     
     // return (
         // <Box sx={{ flexGrow: 1 }}>
@@ -48,5 +54,11 @@ export default async function storyGrid(){
         // </Box>
     // );
 
-    const renderedOutput = Array 
+    var renderedOutput = Array.from(Array(numStories)).map((_) => <div>{"AD"} </div>);
+    console.log(numStories)
+    return(
+        <div>
+            {renderedOutput}
+        </div>
+    );
 }
