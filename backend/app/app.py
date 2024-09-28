@@ -35,16 +35,8 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Set up database with story id table and metadata table
-# db = TinyDB(getRelPath(__file__, "db/db.json"))
-# StoryQuery = Query()
-# story_IDs = db.table("story_IDs")
-# story_metadata = db.table("story_metadata")
-# try:
-#     story_metadata.insert(Document({"metadata": {}}, doc_id=1))
-# except ValueError:
-#     print("Count document exists")
 
+# client to handle database
 db_client = DBClient(getRelPath(__file__, "db/db.json"))
 
 @app.post("/story")
