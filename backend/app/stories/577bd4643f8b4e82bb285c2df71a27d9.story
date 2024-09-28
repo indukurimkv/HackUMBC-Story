@@ -1,1 +1,0 @@
-Testing is the process of performing a test.
