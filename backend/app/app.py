@@ -7,6 +7,8 @@ from tinydb import TinyDB, Query, where
 from tinydb.table import Document
 from tinydb.operations import increment
 
+from app.db import DBClient
+
 from app.pathutil import getRelPath
 
 
@@ -34,25 +36,31 @@ app.add_middleware(
 )
 
 # Set up database with story id table and metadata table
-db = TinyDB(getRelPath(__file__, "db/db.json"))
-StoryQuery = Query()
-story_IDs = db.table("story_IDs")
-story_metadata = db.table("story_metadata")
-try:
-    story_metadata.insert(Document({"metadata": {}}, doc_id=1))
-except ValueError:
-    print("Count document exists")
+# db = TinyDB(getRelPath(__file__, "db/db.json"))
+# StoryQuery = Query()
+# story_IDs = db.table("story_IDs")
+# story_metadata = db.table("story_metadata")
+# try:
+#     story_metadata.insert(Document({"metadata": {}}, doc_id=1))
+# except ValueError:
+#     print("Count document exists")
+
+db_client = DBClient(getRelPath(__file__, "db/db.json"))
 
 @app.post("/story")
 def create_story(story: Story):
     if story.id == "":
         story.id = uuid4().hex
     
-    if story_IDs.contains(where("ID") == story.id):
+    if db_client.story_ID_table.contains(where("ID") == story.id):
         return {"status": "already_exists"}
 
-    story_IDs.insert({"ID": story.id})
-    story_metadata.update(increment("count"), doc_ids=[1])
+    db_client.story_ID_table.insert({"ID": story.id})
+    num_stories = db_client.getCount()
+    if num_stories < 0:
+        db_client.setCount(1)
+    else:
+        db_client.setCount(num_stories + 1)
 
     with open(getRelPath(__file__, f"stories/{story.id}.story"), "w") as file:
         file.write(story.content)
@@ -61,11 +69,11 @@ def create_story(story: Story):
 
 @app.get("/story/get_num")
 def get_num_stories():
-    return {"num_stories": story_metadata.get(doc_id=1)["count"]}
+    return {"num_stories": db_client.getCount()}
 
 @app.get("/story/{ID}")
 def get_story(ID: str):
-    if not story_IDs.contains(where("ID") == ID):
+    if not db_client.story_ID_table.contains(where("ID") == ID):
         return {"status": "not_found"}
     with open(getRelPath(__file__, f"stories/{ID}.story"), "r") as file:
         return {"status": "ok", "id": ID, "body": file.read()}
