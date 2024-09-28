@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 from app.schema.story import Story
 
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 from tinydb.table import Document
 from tinydb.operations import increment
 
@@ -21,7 +21,8 @@ app = StoryApp()
 # Setup up CORS to allow react to access the api
 origins = [
     "http://localhost:3000",
-    "localhost:3000"
+    "localhost:3000",
+    "*"
 ]
 
 app.add_middleware(
@@ -59,6 +60,9 @@ def create_story(story: Story):
 def get_num_stories():
     return {"num_stories": story_metadata.get(doc_id=1)["count"]}
 
-@app.get("/story/{name}")
-def get_story(name: str):
-    return {"name": name}
+@app.get("/story/{ID}")
+def get_story(ID: str):
+    if not story_IDs.contains(where("ID") == ID):
+        return {"status": "not_found"}
+    with open(getRelPath(__file__, f"stories/{ID}.story"), "r") as file:
+        return {"status": "ok", "id": ID, "body": file.read()}
