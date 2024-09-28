@@ -7,6 +7,8 @@ from tinydb import TinyDB, Query
 from tinydb.table import Document
 from tinydb.operations import increment
 
+from app.pathutil import getRelPath
+
 
 class StoryApp(FastAPI):
     def __init__(self, *args, **kwargs):
@@ -31,7 +33,7 @@ app.add_middleware(
 )
 
 # Set up database with story id table and metadata table
-db = TinyDB("backend/app/db/db.json")
+db = TinyDB(getRelPath(__file__, "db/db.json"))
 StoryQuery = Query()
 story_IDs = db.table("story_IDs")
 story_metadata = db.table("story_metadata")
@@ -44,10 +46,11 @@ except ValueError:
 def create_story(story: Story):
     if story.id == "":
         story.id = uuid4().hex
+    
     story_IDs.insert({"ID": story.id})
-
     story_metadata.update(increment("count"), doc_ids=[1])
-    with open(f"backend/app/stories/{story.id}.story", "w") as file:
+
+    with open(getRelPath(__file__, f"stories/{story.id}.story"), "w") as file:
         file.write(story.body)
     return {"status": "ok"}
 
