@@ -122,3 +122,9 @@ def lock_story(ID: str, unlock: Union[bool, None] = None):
             return {"status": "story_does_not_exist"}
     app.locked_stories.add(ID)
     return {"status": "ok"}
+
+@app.get("/story/lock/{ID}")
+def get_story_unlocked(ID: str, unlock: Union[bool, None] = None):
+    out = "story_locked" if ID in app.locked_stories else "story_open"
+    return {"status": out}
+    
