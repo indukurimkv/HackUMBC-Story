@@ -101,8 +101,10 @@ function App() {
           <ButtonB variant="primary" onClick={handleOpen}>Create Story</ButtonB>
         </div>
 
+        <div>
+          <StoryGrid/>
+        </div>
         
-        <StoryGrid/>
         <a
           className="App-link"
           href="https://reactjs.org"
