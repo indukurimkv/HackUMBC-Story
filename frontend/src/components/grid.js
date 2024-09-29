@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 
 // Function to fetch stories from the backend
 async function getStories() {
-  const response = await fetch("http://localhost:8000/story", {
+  const response = await fetch("https://api.gyanar.com/story", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
