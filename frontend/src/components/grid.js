@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import ButtonB from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -124,19 +127,23 @@ export default function StoryGrid() {
   };
 
   return (
-    <div>
-      {/* Map over stories and render each in a Card */}
-      {stories.map((story, index) => (
-        <Card key={index} style={{ width: '18rem', marginBottom: '1rem' }}>
-          <Card.Body>
-            <Card.Title>TITLE</Card.Title>
-            <Card.Text>{story.content.substring(0, 100)}...</Card.Text> {/* Displaying a snippet of the story */}
-            <ButtonB variant="primary" onClick={() => handleOpen(story)}>
-              View Story
-            </ButtonB>
-          </Card.Body>
-        </Card>
-      ))}
+    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
+      {/* Map over stories and render each in a Card within a Bootstrap grid system */}
+      <Row xs={1} md={2} lg={3} className="g-4">
+        {stories.map((story, index) => (
+          <Col key={index} style={{ width: '18rem', margin: '10px' }}>
+            <Card style={{ width: '18rem' }}>
+              <Card.Body>
+                <Card.Title>TITLE</Card.Title>
+                <Card.Text>{story.content.substring(0, 100)}...</Card.Text> {/* Displaying a snippet of the story */}
+                <ButtonB variant="primary" onClick={() => handleOpen(story)}>
+                  View Story
+                </ButtonB>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
 
       {/* Material-UI Modal */}
       <Modal

@@ -1,5 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
+import ButtonB from 'react-bootstrap/Button';
+
 
 import { useState, useRef, useEffect } from 'react'; // import useRef
 
@@ -7,6 +9,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';  // Import TextField
 
 import StoryGrid from "./components/grid.js"
 
@@ -62,31 +65,44 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Modal
-            open={open}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                Start the story!
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <input type="text" id="storyInput" ref={storyInputRef}></input> 
-                <Button onClick={(() => createStory(storyInputRef.current.value))}>Submit</Button>
-              </Typography>
-            </Box>
-          </Modal>
-      
-        <h1>
+      <Modal
+          open={open}
+          onClose={handleClose}  // Ensure the modal closes properly
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Start the story!
+            </Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              {/* Use Material-UI TextField instead of a plain input */}
+              <TextField
+                id="storyInput"
+                label="Story"
+                multiline
+                rows={4} // Set this to make it look like a text area
+                fullWidth // Make it take the full width of the modal
+                inputRef={storyInputRef} // Use ref to capture input value
+                variant="outlined"
+              />
+              <Box mt={2}>
+                <Button variant="contained" onClick={() => createStory(storyInputRef.current.value)}>
+                  Submit
+                </Button>
+              </Box>
+            </Typography>
+          </Box>
+        </Modal>
+        <h1 className="m-5" style={{ color: 'white' }} >
           STORY MAKER
         </h1>
         <div>
-          
+
+          <StoryGrid/>
         </div>
-        <Button onClick={handleOpen}>Create Story</Button>
-        
-        <StoryGrid/>
+        <ButtonB variant="primary" onClick={handleOpen}>Create Story</ButtonB>
+
         <a
           className="App-link"
           href="https://reactjs.org"
