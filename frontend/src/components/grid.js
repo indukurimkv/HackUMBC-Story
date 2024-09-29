@@ -24,7 +24,7 @@ async function getStories() {
     });
     const story = await storyResponse.json();
     return {
-      id: story.id,
+      id: story.id, // Store the story ID
       content: story.body,
     };
   }));
@@ -32,10 +32,57 @@ async function getStories() {
   return stories;
 }
 
+// Function to lock a story
+async function lockStory(id){
+  await fetch(`http://localhost:8000/story/${id}/lock`, { // Assuming your API endpoint for locking a story
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+async function unlockStory(id){
+  await fetch(`http://localhost:8000/story/${id}/lock`, { // Assuming your API endpoint for locking a story
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+// Function to fetch lock status of a story
+async function getLockStatus(id){
+  const response = await fetch(`http://localhost:8000/story/${id}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.locked; // Assuming the lock status is returned as 'locked' in the response
+  }
+  return false;
+}
+
+function editStory(text, ID){
+  console.log(text)
+  const data = {
+    id: ID,
+    content: text 
+  };
+  
+  // Make the request
+  fetch("http://localhost:8000/story?mode=a", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  }).then(response => response.json()).then(responseData => console.log(responseData))
+};
+
 export default function StoryGrid() {
   const [stories, setStories] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedStory, setSelectedStory] = useState(""); // Store selected story content
+  const [selectedStory, setSelectedStory] = useState({}); // Store selected story object (content and id)
+  const [storyUpdate, setStoryUpdate] = useState("");
+  const [isLocked, setIsLocked] = useState(false); // Store lock status
+  const [isEditing, setIsEditing] = useState(false); // Track if the user is editing
 
   useEffect(() => {
     async function fetchStories() {
@@ -46,12 +93,27 @@ export default function StoryGrid() {
     fetchStories();
   }, []);
 
-  const handleOpen = (storyContent) => {
-    setSelectedStory(storyContent); // Set the content of the clicked story
+  const handleOpen = async (story) => {
+    setSelectedStory(story); // Set the selected story object
+    const lockStatus = await getLockStatus(story.id); // Fetch lock status using the story ID
+    setIsLocked(lockStatus);
     setOpen(true); // Open the modal
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setIsEditing(false); // Reset editing state when modal is closed
+    setOpen(false);
+  };
+
+  // Function to handle when the user clicks the "Edit" button
+  const handleEdit = async () => {
+    setIsEditing(true); // Enable editing mode
+    await lockStory(selectedStory.id); // Lock the story by calling the lockStory function
+    await unlockStory(selectedStory.id);
+    setIsLocked(true); // Update the lock status to reflect the story is now locked
+  };
+
+
 
   return (
     <div>
@@ -61,7 +123,7 @@ export default function StoryGrid() {
           <Card.Body>
             <Card.Title>TITLE</Card.Title>
             <Card.Text>{story.content.substring(0, 100)}...</Card.Text> {/* Displaying a snippet of the story */}
-            <ButtonB variant="primary" onClick={() => handleOpen(story.content)}>
+            <ButtonB variant="primary" onClick={() => handleOpen(story)}>
               View Story
             </ButtonB>
           </Card.Body>
@@ -96,12 +158,44 @@ export default function StoryGrid() {
             multiline
             fullWidth
             rows={8}
-            value={selectedStory} // Display the selected story content
+            value={selectedStory.content} // Display the selected story content
             variant="outlined"
+            disabled={isEditing} // Disable this field while editing
           />
           <Box mt={2} display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={handleClose}>Close</Button>
+            {/* Show the Edit button only if the story is not locked */}
+            {!isLocked && !isEditing && (
+              <Button variant="contained" onClick={handleEdit}>
+                Edit
+              </Button>
+            )}
+
+            {/* Show the editable TextField when the story is being edited */}
+            {isEditing && (
+              <TextField
+                id="outlined-multiline-static"
+                label="Story Edit"
+                multiline
+                fullWidth
+                rows={8}
+                value={storyUpdate}
+                onChange={(e) => setStoryUpdate(e.target.value)} // Update the story content
+                variant="outlined"
+              />
+            )}
+
+            {/* Add button for submitting the edits */}
+            {isEditing && (
+              <Button variant="contained" onClick={(handleClose)}>
+                Add
+              </Button>
+            )}
           </Box>
+          <div>
+            <Button variant="contained" onClick={handleClose}>
+              Close
+            </Button>
+          </div>
         </Box>
       </Modal>
     </div>
