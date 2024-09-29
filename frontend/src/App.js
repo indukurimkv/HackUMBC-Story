@@ -74,10 +74,13 @@ function App() {
               </Typography>
             </Box>
           </Modal>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+      
+        <h1>
+          STORY MAKER
+        </h1>
+        <div>
+          
+        </div>
         <Button onClick={handleOpen}>Create Story</Button>
         
         <StoryGrid/>
