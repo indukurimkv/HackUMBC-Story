@@ -11,6 +11,8 @@ class DBClient(TinyDB):
         super().__init__(*args, **kwargs)
         self.story_ID_table = self.table("story_IDs")
         self.metadata_table = self.table("story_metadata")
+        self.setup_metadata()
+        self.syncStories()
     def setup_metadata(self):
         if self.metadata_table.contains(doc_id=1):
             return
@@ -40,9 +42,13 @@ class DBClient(TinyDB):
         return files
     
     def checkStoryExists(self, uuid):
-        return self.story_ID_table.contains(Query().ID == uuid)
+        try:
+            return self.story_ID_table.contains(Query().ID == (uuid.strip()))
+        except Exception as e:
+            print(e, uuid)
+
 
 if __name__ == "__main__":
     client= DBClient(getRelPath(__file__, "db/db.json"))
 
-    print(client.syncStories())
+    print(client.checkStoryExists("2c7d5c47c0884cddb069a1f1ce76421d"))

@@ -41,7 +41,7 @@ app.add_middleware(
 db_client = DBClient(getRelPath(__file__, "db/db.json"))
 
 @app.post("/story")
-def create_story(story: Story):
+async def create_story(story: Story):
     if story.id == "":
         story.id = uuid4().hex
     
@@ -61,16 +61,16 @@ def create_story(story: Story):
 
 
 @app.get("/story/get_num")
-def get_num_stories():
+async def get_num_stories():
     return {"num_stories": db_client.getCount()}
 
 
 @app.get("/story")
-def get_story_ids():
+async def get_story_ids():
     return {"status": "ok", "IDs": db_client.getIDS()}
 
 @app.put("/story")
-def edit_story(story: Story, mode: Union[str, None]):
+async def edit_story(story: Story, mode: Union[str, None]):
     if not db_client.checkStoryExists(story.id):
         return {"status": "not_found"}
     if story.id in app.locked_stories:
@@ -82,23 +82,26 @@ def edit_story(story: Story, mode: Union[str, None]):
     return {"status": "ok"}
 
 @app.put("/story/sync")
-def sync_stories():
+async def sync_stories():
     db_client.syncStories()
     return {"status": "ok"}
 
 @app.get("/story/{ID}")
-def get_story(ID: str):
-    if not db_client.checkStoryExists(ID):
-        return {"status": "not_found"}
-    with open(getRelPath(__file__, f"stories/{ID}.story"), "r") as file:
-        return {"status": "ok", "id": ID, "body": file.read()}
-    
+async def get_story(ID: str):
+    try:
+        if not db_client.checkStoryExists(ID):
+            return {"status": "not_found"}
+        with open(getRelPath(__file__, f"stories/{ID}.story"), "r") as file:
+            return {"status": "ok", "id": ID, "body": file.read()}
+    except:
+        print(f"Erro on ID: {ID}")
+
 @app.post("/story/lock")
-def lock_all(unlock: Union[bool, None] = None):
+async def lock_all(unlock: Union[bool, None] = None):
     stories = [i["ID"] for i in db_client.story_ID_table.all()]
     if unlock:
         for story in stories:
-            if lock_story(story, unlock=True)["status"] == "story_does_not_exist":
+            if (await lock_story(story, unlock=True))["status"] == "story_does_not_exist":
                 return {
                     "status": "story_does_not_exist",
                     "ID": story
@@ -107,13 +110,13 @@ def lock_all(unlock: Union[bool, None] = None):
         return {"status": "ok"}
     
     for story in stories:
-        lock_story(story)
+        await lock_story(story)
         print(app.locked_stories)
     return {"status": "ok"}
 
 
 @app.post("/story/lock/{ID}")
-def lock_story(ID: str, unlock: Union[bool, None] = None):
+async def lock_story(ID: str, unlock: Union[bool, None] = None):
     if unlock:
         try:
             app.locked_stories.remove(ID)
@@ -124,5 +127,5 @@ def lock_story(ID: str, unlock: Union[bool, None] = None):
     return {"status": "ok"}
 
 @app.get("/story/lock/{ID}")
-def get_story_locked(ID: str):
+async def get_story_locked(ID: str):
     return {"locked": ID in app.locked_stories}
