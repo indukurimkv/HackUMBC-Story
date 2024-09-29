@@ -3,6 +3,7 @@ Lib/
 Scripts/
 src/stories/*
 !src/stories/test1.story
-*/__pycache__
+# __pycache__/
+**/__pycache__
 db/db.json
 
