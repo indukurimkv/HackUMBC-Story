@@ -9,6 +9,8 @@ from src.db import DBClient
 
 from src.utils.pathutil import getRelPath
 
+from src.doc import get_doc_string
+
 
 class StoryApp(FastAPI):
     def __init__(self, *args, **kwargs):
@@ -16,7 +18,7 @@ class StoryApp(FastAPI):
         self.locked_stories = set()
 
     
-app = StoryApp()
+app = StoryApp(description=get_doc_string())
 
 
 # Setup up CORS to allow react to access the api
