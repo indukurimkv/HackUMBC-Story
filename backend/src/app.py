@@ -124,7 +124,5 @@ def lock_story(ID: str, unlock: Union[bool, None] = None):
     return {"status": "ok"}
 
 @app.get("/story/lock/{ID}")
-def get_story_unlocked(ID: str, unlock: Union[bool, None] = None):
-    out = "story_locked" if ID in app.locked_stories else "story_open"
-    return {"status": out}
-    
+def get_story_locked(ID: str):
+    return {"locked": ID in app.locked_stories}

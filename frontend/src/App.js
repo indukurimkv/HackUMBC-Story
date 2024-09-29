@@ -10,6 +10,8 @@ import Modal from '@mui/material/Modal';
 
 import StoryGrid from "./components/grid.js"
 
+import "bootstrap/dist/css/bootstrap.min.css"
+
 const style = {
   position: 'absolute',
   top: '50%',
