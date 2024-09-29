@@ -67,6 +67,16 @@ def get_num_stories():
 def get_story_ids():
     return {"status": "ok", "IDs": db_client.getIDS()}
 
+@app.put("/story")
+def edit_story(story: Story, mode: Union[str, None]):
+    if not db_client.checkStoryExists(story.id):
+        return {"status": "not_found"}
+    if not mode in ("a", "w"):
+        return {"status": "invalid_mode"}
+    with open(getRelPath(__file__, f"stories/{story.id}.story"), mode) as file:
+        file.write(story.content)
+    return {"status": "ok"}
+
 @app.put("/story/sync")
 def sync_stories():
     db_client.syncStories()
