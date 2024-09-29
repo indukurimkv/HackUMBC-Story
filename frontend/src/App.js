@@ -48,7 +48,7 @@ function App() {
     };
     
     // Make the request
-    fetch("http://localhost:8000/story", {
+    fetch("https://api.gyanar.com/story", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)

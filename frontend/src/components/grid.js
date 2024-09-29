@@ -18,7 +18,7 @@ async function getStories() {
 
   // Fetch each story content based on IDs
   const stories = await Promise.all(storyIDs.IDs.map(async (id) => {
-    const storyResponse = await fetch(`http://localhost:8000/story/${id}`, {
+    const storyResponse = await fetch(`https://api.gyanar.com/story/${id}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -34,14 +34,14 @@ async function getStories() {
 
 // Function to lock a story
 async function lockStory(id) {
-  await fetch(`http://localhost:8000/story/${id}/lock`, {
+  await fetch(`https://api.gyanar.com/story/${id}/lock`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
 }
 
 async function unlockStory(id) {
-  await fetch(`http://localhost:8000/story/${id}/unlock`, {
+  await fetch(`https://api.gyanar.com/story/${id}/unlock`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
@@ -49,7 +49,7 @@ async function unlockStory(id) {
 
 // Function to fetch lock status of a story
 async function getLockStatus(id) {
-  const response = await fetch(`http://localhost:8000/story/${id}`, {
+  const response = await fetch(`https://api.gyanar.com/story/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
@@ -69,7 +69,7 @@ function editStory(text, ID) {
     content: text,
   };
 
-  fetch("http://localhost:8000/story?mode=a", {
+  fetch("https://api.gyanar.com/story?mode=a", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
