@@ -1,8 +1,10 @@
-from tinydb import TinyDB, where
+from tinydb import TinyDB, where, Query
 from tinydb.table import Document
 from tinydb.operations import *
 
-from app.pathutil import getRelPath
+from src.utils.pathutil import getRelPath
+
+import os
 
 class DBClient(TinyDB):
     def __init__(self, *args, **kwargs):
@@ -25,4 +27,19 @@ class DBClient(TinyDB):
         if "count" in metadata:
             return metadata["count"]
         return -1
+    def getIDS(self):
+        return [i["ID"] for i in self.story_ID_table.all()]
+    
+    def syncStories(self):
+        # Match file names with ids. Remove non-matching file ids
+        # note that the .story extension will be replaced so it can't be used in ids
+        files =  [filename.replace(".story", "") for filename in os.listdir(getRelPath(__file__, "stories"))]
+        self.setCount(len(files))
 
+        self.story_ID_table.remove(Query().ID.test(lambda id: not id in files))
+        return files
+
+if __name__ == "__main__":
+    client= DBClient(getRelPath(__file__, "db/db.json"))
+
+    print(client.syncStories())

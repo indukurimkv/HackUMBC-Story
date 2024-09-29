@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
-from app.schema.story import Story
+from src.schema.story import Story
 
 from tinydb import TinyDB, Query, where
 from tinydb.table import Document
 from tinydb.operations import increment
 
-from app.db import DBClient
+from src.db import DBClient
 
-from app.pathutil import getRelPath
+from src.utils.pathutil import getRelPath
 
 
 class StoryApp(FastAPI):
@@ -62,6 +62,16 @@ def create_story(story: Story):
 @app.get("/story/get_num")
 def get_num_stories():
     return {"num_stories": db_client.getCount()}
+
+
+@app.get("/story")
+def get_story_ids():
+    return {"status": "ok", "IDs": db_client.getIDS()}
+
+@app.put("/story/sync")
+def sync_stories():
+    db_client.syncStories()
+    return {"status": "ok"}
 
 @app.get("/story/{ID}")
 def get_story(ID: str):
