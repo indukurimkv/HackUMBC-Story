@@ -54,6 +54,7 @@ function App() {
       body: JSON.stringify(data)
     }).then(response => response.json()).then(responseData => console.log(responseData))
     setOpen(false);
+    window.location.reload(false);
   };
 
   

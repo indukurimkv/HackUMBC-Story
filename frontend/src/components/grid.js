@@ -24,7 +24,7 @@ async function getStories() {
     });
     const story = await storyResponse.json();
     return {
-      id: story.id, // Store the story ID
+      id: story.id, 
       content: story.body,
     };
   }));
@@ -33,22 +33,22 @@ async function getStories() {
 }
 
 // Function to lock a story
-async function lockStory(id){
-  await fetch(`http://localhost:8000/story/${id}/lock`, { // Assuming your API endpoint for locking a story
+async function lockStory(id) {
+  await fetch(`http://localhost:8000/story/${id}/lock`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
 }
 
-async function unlockStory(id){
-  await fetch(`http://localhost:8000/story/${id}/lock`, { // Assuming your API endpoint for locking a story
+async function unlockStory(id) {
+  await fetch(`http://localhost:8000/story/${id}/unlock`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
 }
 
 // Function to fetch lock status of a story
-async function getLockStatus(id){
+async function getLockStatus(id) {
   const response = await fetch(`http://localhost:8000/story/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -56,31 +56,32 @@ async function getLockStatus(id){
 
   if (response.ok) {
     const data = await response.json();
-    return data.locked; // Assuming the lock status is returned as 'locked' in the response
+    return data.locked;
   }
   return false;
 }
 
-function editStory(text, ID){
-  console.log(text)
+// Function to update the story on the server
+function editStory(text, ID) {
+  console.log(text);
   const data = {
     id: ID,
-    content: text 
+    content: text,
   };
-  
-  // Make the request
+
   fetch("http://localhost:8000/story?mode=a", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  }).then(response => response.json()).then(responseData => console.log(responseData))
-};
+    body: JSON.stringify(data),
+  }).then(response => response.json())
+    .then(responseData => console.log(responseData));
+}
 
 export default function StoryGrid() {
   const [stories, setStories] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState({}); // Store selected story object (content and id)
-  const [storyUpdate, setStoryUpdate] = useState("");
+  const [storyUpdate, setStoryUpdate] = useState(""); // To store the edited story text
   const [isLocked, setIsLocked] = useState(false); // Store lock status
   const [isEditing, setIsEditing] = useState(false); // Track if the user is editing
 
@@ -94,10 +95,10 @@ export default function StoryGrid() {
   }, []);
 
   const handleOpen = async (story) => {
-    setSelectedStory(story); // Set the selected story object
-    const lockStatus = await getLockStatus(story.id); // Fetch lock status using the story ID
+    setSelectedStory(story); 
+    const lockStatus = await getLockStatus(story.id); 
     setIsLocked(lockStatus);
-    setOpen(true); // Open the modal
+    setOpen(true);
   };
 
   const handleClose = () => {
@@ -109,11 +110,18 @@ export default function StoryGrid() {
   const handleEdit = async () => {
     setIsEditing(true); // Enable editing mode
     await lockStory(selectedStory.id); // Lock the story by calling the lockStory function
-    await unlockStory(selectedStory.id);
     setIsLocked(true); // Update the lock status to reflect the story is now locked
   };
 
-
+  // Function to handle adding the edited story
+  const handleAdd = async () => {
+    editStory(storyUpdate, selectedStory.id);
+    await unlockStory(selectedStory.id);
+    // Clear the text field
+    setStoryUpdate("");
+    handleClose();
+    window.location.reload(false);
+  };
 
   return (
     <div>
@@ -186,7 +194,7 @@ export default function StoryGrid() {
 
             {/* Add button for submitting the edits */}
             {isEditing && (
-              <Button variant="contained" onClick={(handleClose)}>
+              <Button variant="contained" onClick={handleAdd}>
                 Add
               </Button>
             )}
