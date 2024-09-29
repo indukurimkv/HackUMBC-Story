@@ -73,6 +73,8 @@ def get_story_ids():
 def edit_story(story: Story, mode: Union[str, None]):
     if not db_client.checkStoryExists(story.id):
         return {"status": "not_found"}
+    if story.id in app.locked_stories:
+        return {"status": "story_locked"}
     if not mode in ("a", "w"):
         return {"status": "invalid_mode"}
     with open(getRelPath(__file__, f"stories/{story.id}.story"), mode) as file:
