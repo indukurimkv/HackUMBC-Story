@@ -3,9 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 from src.schema.story import Story
 
-from tinydb import TinyDB, Query, where
-from tinydb.table import Document
-from tinydb.operations import increment
+from typing import Union
 
 from src.db import DBClient
 
@@ -15,6 +13,7 @@ from src.utils.pathutil import getRelPath
 class StoryApp(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.locked_stories = set()
 
     
 app = StoryApp()
@@ -44,7 +43,7 @@ def create_story(story: Story):
     if story.id == "":
         story.id = uuid4().hex
     
-    if db_client.story_ID_table.contains(where("ID") == story.id):
+    if db_client.checkStoryExists(story.id):
         return {"status": "already_exists"}
 
     db_client.story_ID_table.insert({"ID": story.id})
@@ -75,7 +74,37 @@ def sync_stories():
 
 @app.get("/story/{ID}")
 def get_story(ID: str):
-    if not db_client.story_ID_table.contains(where("ID") == ID):
+    if not db_client.checkStoryExists(ID):
         return {"status": "not_found"}
     with open(getRelPath(__file__, f"stories/{ID}.story"), "r") as file:
         return {"status": "ok", "id": ID, "body": file.read()}
+    
+@app.post("/story/lock")
+def lock_all(unlock: Union[bool, None] = None):
+    stories = [i["ID"] for i in db_client.story_ID_table.all()]
+    if unlock:
+        for story in stories:
+            if lock_story(story, unlock=True)["status"] == "story_does_not_exist":
+                return {
+                    "status": "story_does_not_exist",
+                    "ID": story
+                }
+        print(app.locked_stories)
+        return {"status": "ok"}
+    
+    for story in stories:
+        lock_story(story)
+        print(app.locked_stories)
+    return {"status": "ok"}
+
+
+@app.post("/story/lock/{ID}")
+def lock_story(ID: str, unlock: Union[bool, None] = None):
+    if unlock:
+        try:
+            app.locked_stories.remove(ID)
+            return {"status": "ok"}
+        except KeyError:
+            return {"status": "story_does_not_exist"}
+    app.locked_stories.add(ID)
+    return {"status": "ok"}

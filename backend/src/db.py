@@ -38,6 +38,9 @@ class DBClient(TinyDB):
 
         self.story_ID_table.remove(Query().ID.test(lambda id: not id in files))
         return files
+    
+    def checkStoryExists(self, uuid):
+        return self.story_ID_table.contains(Query().ID == uuid)
 
 if __name__ == "__main__":
     client= DBClient(getRelPath(__file__, "db/db.json"))
